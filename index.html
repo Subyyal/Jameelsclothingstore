@@ -424,283 +424,275 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let cart = [];
-        let allProducts = [];
-        let currentFilter = { category: 'all', subCategory: null, fabric: null };
+  <script>
+/* ===============================
+   PAGE LEVEL FILTER (SET PER PAGE)
+   =============================== */
+const PAGE_FILTER = {
+    audience: null // "Women" | "Men" | "Boys" | "Girls"
+};
 
-        // LOAD CART FROM STORAGE
-        function loadCart() {
-            const saved = localStorage.getItem('jameel_cart');
-            if (saved) {
-                cart = JSON.parse(saved);
-                updateCartUI();
-            }
+/* ===============================
+   GLOBAL STATE
+   =============================== */
+let cart = [];
+let allProducts = [];
+let currentFilter = {
+    category: 'all',
+    subCategory: null,
+    fabric: null
+};
+
+/* ===============================
+   LOAD CART
+   =============================== */
+function loadCart() {
+    const saved = localStorage.getItem('jameel_cart');
+    if (saved) {
+        cart = JSON.parse(saved);
+        updateCartUI();
+    }
+}
+
+/* ===============================
+   ADMIN VISIBILITY
+   =============================== */
+if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+        if (user) {
+            document.getElementById('admin-controls').style.display = 'block';
         }
+    });
+}
 
-        // ADMIN VISIBILITY
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (user) document.getElementById('admin-controls').style.display = 'block';
-            });
-        }
+/* ===============================
+   LOAD PRODUCTS
+   =============================== */
+async function loadStore() {
+    try {
+        const res = await fetch(
+            "https://api.github.com/repos/Subyyal/Jameelsclothingstore/contents/data/products"
+        );
+        const files = await res.json();
+        allProducts = [];
 
-        // LOAD PRODUCTS FROM GITHUB
-        async function loadStore() {
-            try {
-                const res = await fetch("https://api.github.com/repos/Subyyal/Jameelsclothingstore/contents/data/products");
-                const files = await res.json();
-                allProducts = [];
-
-                for (const file of files) {
-                    if (file.name.endsWith('.json')) {
-                        const productRes = await fetch(file.download_url);
-                        const item = await productRes.json();
-                        if (item.in_stock !== false) allProducts.push(item);
-                    }
+        for (const file of files) {
+            if (file.name.endsWith('.json')) {
+                const productRes = await fetch(file.download_url);
+                const item = await productRes.json();
+                if (item.in_stock !== false) {
+                    allProducts.push(item);
                 }
-                displayProducts(allProducts);
-            } catch (error) {
-                document.getElementById('product-grid').innerHTML = '<div class="col-12 text-center text-muted py-5">Unable to load products. Please refresh the page.</div>';
             }
         }
 
-        // DISPLAY PRODUCTS IN GRID
-     function displayProducts(products) {
+        applyFilters();
+    } catch (e) {
+        document.getElementById('product-grid').innerHTML =
+            '<div class="col-12 text-center text-muted py-5">Unable to load products.</div>';
+    }
+}
+
+/* ===============================
+   DISPLAY PRODUCTS
+   =============================== */
+function displayProducts(products) {
     const grid = document.getElementById('product-grid');
-    
-    if (products.length === 0) {
-        grid.innerHTML = '<div class="col-12 text-center text-muted py-5">No products found matching your filters.</div>';
+
+    if (!products.length) {
+        grid.innerHTML =
+            '<div class="col-12 text-center text-muted py-5">No products found.</div>';
         return;
     }
 
     grid.innerHTML = products.map(item => {
-        // Item is on sale if category is 'Special Offer' OR the 'on_sale' toggle is true
-        const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
-        
-        // Calculate Discount Percentage automatically
+        const isOnSale =
+            item.category === 'Special Offer' || item.on_sale === true;
+
         let badge = '';
         if (isOnSale && item.old_price > item.price) {
-            const discount = Math.round(((item.old_price - item.price) / item.old_price) * 100);
+            const discount = Math.round(
+                ((item.old_price - item.price) / item.old_price) * 100
+            );
             badge = `<div class="badge-sale">${discount}% OFF</div>`;
         } else if (isOnSale) {
             badge = `<div class="badge-sale">SALE</div>`;
         }
-        
-        // Show strike-through price if old_price exists
-        const priceHTML = (isOnSale && item.old_price) 
-            ? `Rs. ${item.price.toLocaleString()} <span class="product-price-old">Rs. ${item.old_price.toLocaleString()}</span>`
-            : `Rs. ${item.price.toLocaleString()}`;
-        
+
+        const priceHTML =
+            isOnSale && item.old_price
+                ? `Rs. ${item.price.toLocaleString()}
+                   <span class="product-price-old">
+                     Rs. ${item.old_price.toLocaleString()}
+                   </span>`
+                : `Rs. ${item.price.toLocaleString()}`;
+
         return `
-            <div class="col-6 col-md-3 product-card">
-                <div class="img-container">
-                    ${badge}
-                    <img src="${item.image}" alt="${item.title}">
-                    <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
-                        <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
-                    </button>
-                </div>
-                <div class="product-info">
-                    <div class="product-title">${item.title}</div>
-                    ${item.urdu_name ? `<div class="urdu text-muted mb-1">${item.urdu_name}</div>` : ''}
-                    <div class="product-price">${priceHTML}</div>
-                    <div class="small text-muted mt-1">${item.fabric || ''} | ${item.sub_category || ''}</div>
+        <div class="col-6 col-md-3 product-card">
+            <div class="img-container">
+                ${badge}
+                <img src="${item.image}" alt="${item.title}">
+                <button class="add-to-bag"
+                    onclick='addToCart(${JSON.stringify(item).replace(/'/g,"&apos;")}, event)'>
+                    <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
+                </button>
+            </div>
+            <div class="product-info">
+                <div class="product-title">${item.title}</div>
+                ${item.urdu_name ? `<div class="urdu text-muted mb-1">${item.urdu_name}</div>` : ''}
+                <div class="product-price">${priceHTML}</div>
+                <div class="small text-muted mt-1">
+                    ${item.fabric || ''} | ${item.sub_category || ''}
                 </div>
             </div>
-        `;
+        </div>`;
     }).join('');
 }
 
-        // FILTER BY CATEGORY
-        function filterProducts(category) {
-            currentFilter.category = category;
-            currentFilter.subCategory = null;
-            currentFilter.fabric = null;
-            
-            // Update active button
-            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.filter === category) btn.classList.add('active');
-            });
+/* ===============================
+   FILTER CONTROLS
+   =============================== */
+function filterProducts(category) {
+    currentFilter.category = category;
+    currentFilter.subCategory = null;
+    currentFilter.fabric = null;
 
-            applyFilters();
-            document.getElementById('collections').scrollIntoView({ behavior: 'smooth' });
-        }
+    document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === category) btn.classList.add('active');
+    });
 
-        // FILTER BY SUB-CATEGORY
-        function filterSubCategory(subCat) {
-            currentFilter.subCategory = subCat;
-            applyFilters();
-        }
+    applyFilters();
+}
 
-        // FILTER BY FABRIC
-        function filterFabric(fabric) {
-            currentFilter.fabric = fabric;
-            applyFilters();
-        }
+function filterSubCategory(subCat) {
+    currentFilter.subCategory = subCat;
+    applyFilters();
+}
 
-        // APPLY ALL FILTERS
-    function applyFilters() {
+function filterFabric(fabric) {
+    currentFilter.fabric = fabric;
+    applyFilters();
+}
+
+/* ===============================
+   APPLY FILTERS (CORE LOGIC)
+   =============================== */
+function applyFilters() {
     let filtered = allProducts;
 
-    // Enhanced Category Filter
+    // 🔒 PAGE LEVEL AUDIENCE FILTER
+    if (PAGE_FILTER.audience) {
+        filtered = filtered.filter(
+            p => p.audience === PAGE_FILTER.audience
+        );
+    }
+
+    // Category logic
     if (currentFilter.category === 'Special Offer') {
-        // Show everything in 'Special Offer' category AND anything manually marked 'on_sale'
-        filtered = filtered.filter(p => p.category === 'Special Offer' || p.on_sale === true);
+        filtered = filtered.filter(
+            p => p.category === 'Special Offer' || p.on_sale === true
+        );
     } else if (currentFilter.category !== 'all') {
-        filtered = filtered.filter(p => p.category === currentFilter.category);
+        filtered = filtered.filter(
+            p => p.category === currentFilter.category
+        );
     }
 
-    // Sub-category filter (1-Piece, 2-Piece, etc)
     if (currentFilter.subCategory) {
-        filtered = filtered.filter(p => p.sub_category === currentFilter.subCategory);
+        filtered = filtered.filter(
+            p => p.sub_category === currentFilter.subCategory
+        );
     }
 
-    // Fabric filter (Lawn, Silk, etc)
     if (currentFilter.fabric) {
-        filtered = filtered.filter(p => p.fabric === currentFilter.fabric);
+        filtered = filtered.filter(
+            p => p.fabric === currentFilter.fabric
+        );
     }
 
     displayProducts(filtered);
 }
 
-        // ADD TO CART
-        function addToCart(product, event) {
-            cart.push({
-                title: product.title,
-                price: product.price,
-                image: product.image,
-                urdu_name: product.urdu_name || ''
-            });
-            
-            localStorage.setItem('jameel_cart', JSON.stringify(cart));
-            updateCartUI();
-            toggleCart(true);
-            
-            // Show feedback
-            if (event && event.target) {
-                const btn = event.target.closest('.add-to-bag');
-                if (btn) {
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '<i class="fa fa-check me-2"></i>ADDED';
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                    }, 1500);
-                }
-            }
+/* ===============================
+   CART LOGIC
+   =============================== */
+function addToCart(product, event) {
+    cart.push({
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        urdu_name: product.urdu_name || ''
+    });
+
+    localStorage.setItem('jameel_cart', JSON.stringify(cart));
+    updateCartUI();
+    toggleCart(true);
+
+    if (event?.target) {
+        const btn = event.target.closest('.add-to-bag');
+        if (btn) {
+            const t = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-check me-2"></i>ADDED';
+            setTimeout(() => (btn.innerHTML = t), 1500);
         }
+    }
+}
 
-        // UPDATE CART UI
-        function updateCartUI() {
-            const count = document.getElementById('cart-count');
-            const container = document.getElementById('cart-items-container');
-            const total = document.getElementById('cart-total');
+function updateCartUI() {
+    const count = document.getElementById('cart-count');
+    const container = document.getElementById('cart-items-container');
+    const total = document.getElementById('cart-total');
 
-            count.textContent = cart.length;
+    count.textContent = cart.length;
 
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="text-center text-muted py-5"><i class="fa fa-shopping-bag fa-3x mb-3 d-block"></i><p>Your bag is empty</p></div>';
-                total.textContent = 'Rs. 0';
-                return;
-            }
+    if (!cart.length) {
+        container.innerHTML =
+            '<div class="text-center text-muted py-5">Your bag is empty</div>';
+        total.textContent = 'Rs. 0';
+        return;
+    }
 
-            let sum = 0;
-            container.innerHTML = cart.map((item, index) => {
-                sum += parseInt(item.price);
-                return `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.title}">
-                        <div class="cart-item-info">
-                            <div class="cart-item-title">${item.title}</div>
-                            ${item.urdu_name ? `<div class="urdu small">${item.urdu_name}</div>` : ''}
-                            <div class="cart-item-price">Rs. ${item.price.toLocaleString()}</div>
-                        </div>
-                        <button class="remove-btn" onclick="removeFromCart(${index})" title="Remove">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
+    let sum = 0;
+    container.innerHTML = cart.map((item, i) => {
+        sum += parseInt(item.price);
+        return `
+        <div class="cart-item">
+            <img src="${item.image}">
+            <div class="cart-item-info">
+                <div class="cart-item-title">${item.title}</div>
+                ${item.urdu_name ? `<div class="urdu small">${item.urdu_name}</div>` : ''}
+                <div class="cart-item-price">Rs. ${item.price.toLocaleString()}</div>
+            </div>
+            <button class="remove-btn" onclick="removeFromCart(${i})">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>`;
+    }).join('');
 
-            total.textContent = 'Rs. ' + sum.toLocaleString();
-        }
+    total.textContent = 'Rs. ' + sum.toLocaleString();
+}
 
-        // REMOVE FROM CART
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            localStorage.setItem('jameel_cart', JSON.stringify(cart));
-            updateCartUI();
-        }
+function removeFromCart(i) {
+    cart.splice(i, 1);
+    localStorage.setItem('jameel_cart', JSON.stringify(cart));
+    updateCartUI();
+}
 
-        // TOGGLE CART SIDEBAR
-        function toggleCart(forceOpen = false) {
-            const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.querySelector('.overlay');
-            
-            if (forceOpen) {
-                sidebar.classList.add('active');
-                overlay.classList.add('active');
-            } else {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-            }
-        }
+/* ===============================
+   CART UI
+   =============================== */
+function toggleCart(force = false) {
+    document.getElementById('cart-sidebar').classList.toggle('active', force);
+    document.querySelector('.overlay').classList.toggle('active', force);
+}
 
-        // HANDLE ORDER SUBMISSION
-        document.getElementById('orderForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            const city = document.getElementById('custCity').value;
-            const address = document.getElementById('custAddress').value;
+/* ===============================
+   INIT
+   =============================== */
+loadCart();
+loadStore();
+</script>
 
-            if (cart.length === 0) {
-                alert('Your cart is empty!');
-                return;
-            }
-
-            let message = `*NEW ORDER - JAMEEL*\n\n`;
-            message += `👤 *Customer Details*\n`;
-            message += `Name: ${name}\n`;
-            message += `Phone: ${phone}\n`;
-            message += `City: ${city}\n`;
-            message += `Address: ${address}\n\n`;
-            message += `🛍️ *Order Items*\n`;
-            
-            let total = 0;
-            cart.forEach((item, i) => {
-                total += parseInt(item.price);
-                message += `${i + 1}. ${item.title}\n`;
-                message += `   Price: Rs. ${item.price.toLocaleString()}\n\n`;
-            });
-            
-            message += `💰 *Total Amount: Rs. ${total.toLocaleString()}*\n\n`;
-            message += `Thank you for shopping with JAMEEL!`;
-
-            const whatsappNumber = '923000000000'; // Replace with your WhatsApp number
-            const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-            
-            window.open(whatsappURL, '_blank');
-            
-            // Optional: Clear cart after order
-            // cart = [];
-            // localStorage.removeItem('jameel_cart');
-            // updateCartUI();
-            // toggleCart();
-        });
-
-        // NEWSLETTER FORM
-        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Thank you for subscribing! You will receive exclusive offers soon.');
-            this.reset();
-        });
-
-        // INITIALIZE
-        loadCart();
-        loadStore();
-    </script>
 </body>
 </html>
