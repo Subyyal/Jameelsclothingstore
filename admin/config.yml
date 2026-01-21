@@ -40,10 +40,15 @@ collections:
           - "Co-ord Sets"
 
       # Pricing & Flexible Sale Logic
+     # Pricing & Flexible Sale Logic
       - { label: "Current Price (PKR)", name: "price", widget: "number", value_type: "int" }
-      - { label: "Original Price (Before Discount)", name: "old_price", widget: "number", value_type: "int", required: false, hint: "Enter higher price here to show a strike-through and % off badge" }
-      - { label: "Mark as Sale Item", name: "on_sale", widget: "boolean", default: false, hint: "If checked, this item appears in the Sale section regardless of category" }
       
+      # Set required: false so you don't have to fill this for every item
+      - { label: "Original Price (Before Discount)", name: "old_price", widget: "number", value_type: "int", required: false, hint: "Leave empty for regular items" }
+      
+      # This toggle is false by default, so items won't be tagged as sale unless you click it
+      - { label: "Mark as Sale Item", name: "on_sale", widget: "boolean", default: false, required: false }
+      ###############
       - label: "Fabric"
         name: "fabric"
         widget: "select"
