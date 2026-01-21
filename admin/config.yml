@@ -14,7 +14,7 @@ collections:
     extension: json
     fields:
       - { label: "Product Title", name: "title", widget: "string", hint: "e.g. 3 Piece Printed Lawn" }
-      - { label: "Urdu Name (اردو نام)", name: "urdu_name", widget: "string" }
+      - { label: "Urdu Name (اردو نام)", name: "urdu_name", widget: "string", required: false }
       
       # Zellbury Main Departments
       - label: "Main Category"
@@ -39,7 +39,10 @@ collections:
           - "Bottoms"
           - "Co-ord Sets"
 
-      - { label: "Price (PKR)", name: "price", widget: "number", value_type: "int" }
+      # Pricing & Flexible Sale Logic
+      - { label: "Current Price (PKR)", name: "price", widget: "number", value_type: "int" }
+      - { label: "Original Price (Before Discount)", name: "old_price", widget: "number", value_type: "int", required: false, hint: "Enter higher price here to show a strike-through and % off badge" }
+      - { label: "Mark as Sale Item", name: "on_sale", widget: "boolean", default: false, hint: "If checked, this item appears in the Sale section regardless of category" }
       
       - label: "Fabric"
         name: "fabric"
@@ -47,5 +50,4 @@ collections:
         options: ["Lawn", "Cotton", "Cambric", "Karandi", "Silk", "Linen", "Wash n Wear"]
 
       - { label: "Product Image", name: "image", widget: "image" }
-      
       - { label: "Stock Availability", name: "in_stock", widget: "boolean", default: true }
