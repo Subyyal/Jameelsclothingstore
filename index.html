@@ -483,7 +483,7 @@
                         <div class="img-container">
                             ${badge}
                             <img src="${item.image}" alt="${item.title}">
-                            <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item)})'>
+                            <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                                 <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
                             </button>
                         </div>
@@ -551,7 +551,7 @@
         }
 
         // ADD TO CART
-        function addToCart(product) {
+        function addToCart(product, event) {
             cart.push({
                 title: product.title,
                 price: product.price,
@@ -564,12 +564,16 @@
             toggleCart(true);
             
             // Show feedback
-            const btn = event.target.closest('.add-to-bag');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa fa-check me-2"></i>ADDED';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-            }, 1500);
+            if (event && event.target) {
+                const btn = event.target.closest('.add-to-bag');
+                if (btn) {
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa fa-check me-2"></i>ADDED';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                    }, 1500);
+                }
+            }
         }
 
         // UPDATE CART UI
