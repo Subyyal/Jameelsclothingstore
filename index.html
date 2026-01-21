@@ -180,14 +180,32 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto text-uppercase">
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="filterProducts('all')">New Arrivals</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="filterProducts('Unstitched')">Unstitched</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="filterProducts('Ready to Wear')">Ready to Wear</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="filterProducts('Menswear')">Menswear</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="filterProducts('Kids')">Kids</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="filterProducts('Special Offer')">Sale</a></li>
-                </ul>
+               <ul class="navbar-nav mx-auto text-uppercase">
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('all'); scrollToProducts()">New Arrivals</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('Unstitched'); scrollToProducts()">Unstitched</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('Ready to Wear'); scrollToProducts()">Ready to Wear</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('Menswear'); scrollToProducts()">Menswear</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('Boys'); scrollToProducts()">Boys</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('Girls'); scrollToProducts()">Girls</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#collections" onclick="filterProducts('Kids'); scrollToProducts()">Kids</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-danger" href="#collections" onclick="filterProducts('Special Offer'); scrollToProducts()">Sale</a>
+    </li>
+</ul>
             </div>
 
             <div class="d-flex align-items-center gap-3">
@@ -632,7 +650,27 @@
             localStorage.setItem('jameel_cart', JSON.stringify(cart));
             updateCartUI();
         }
+//nav-filter
 
+function scrollToProducts() {
+    const section = document.getElementById('collections');
+    if (section) {
+        // We subtract a bit of offset (e.g., 80px) so the heading isn't covered by the navbar
+        const offset = 80; 
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = section.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+////////        
+
+        
         // TOGGLE CART SIDEBAR
         function toggleCart(forceOpen = false) {
             const sidebar = document.getElementById('cart-sidebar');
