@@ -424,222 +424,264 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-   <script>
-/* =========================
-   GLOBAL STATE
-========================= */
-let cart = JSON.parse(localStorage.getItem('jameel_cart')) || [];
-let allProducts = [];
-let currentFilter = { category: 'all', subCategory: null, fabric: null };
+    <script>
+        let cart = [];
+        let allProducts = [];
+        let currentFilter = { category: 'all', subCategory: null, fabric: null };
 
-/* =========================
-   ADMIN VISIBILITY (NETLIFY)
-========================= */
-if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", user => {
-        if (user) {
-            document.getElementById('admin-controls').style.display = 'block';
-        }
-    });
-}
-
-/* =========================
-   LOAD PRODUCTS
-========================= */
-async function loadStore() {
-    try {
-        const res = await fetch(
-            "https://api.github.com/repos/Subyyal/Jameelsclothingstore/contents/data/products"
-        );
-        const files = await res.json();
-        allProducts = [];
-
-        for (const file of files) {
-            if (file.name.endsWith('.json')) {
-                const productRes = await fetch(file.download_url);
-                const product = await productRes.json();
-                if (product.in_stock !== false) allProducts.push(product);
+        // LOAD CART FROM STORAGE
+        function loadCart() {
+            const saved = localStorage.getItem('jameel_cart');
+            if (saved) {
+                cart = JSON.parse(saved);
+                updateCartUI();
             }
         }
-        displayProducts(allProducts);
-    } catch (e) {
-        document.getElementById('product-grid').innerHTML =
-            `<div class="col-12 text-center text-muted">Failed to load products</div>`;
-    }
-}
 
-/* =========================
-   DISPLAY PRODUCTS
-========================= */
-function displayProducts(products) {
-    const grid = document.getElementById('product-grid');
-    grid.innerHTML = '';
+        // ADMIN VISIBILITY
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("init", user => {
+                if (user) document.getElementById('admin-controls').style.display = 'block';
+            });
+        }
 
-    if (products.length === 0) {
-        grid.innerHTML = `<div class="col-12 text-center text-muted">No products found</div>`;
-        return;
-    }
+        // LOAD PRODUCTS FROM GITHUB
+        async function loadStore() {
+            try {
+                const res = await fetch("https://api.github.com/repos/Subyyal/Jameelsclothingstore/contents/data/products");
+                const files = await res.json();
+                allProducts = [];
 
-    products.forEach(p => {
-        grid.innerHTML += `
-        <div class="col-6 col-md-3">
-            <div class="product-card">
-                <div class="img-container">
-                    ${p.is_new ? `<span class="badge-new">NEW</span>` : ''}
-                    ${p.on_sale ? `<span class="badge-sale">SALE</span>` : ''}
-                    <img src="${p.image}" alt="${p.title}">
-                    <button class="add-to-bag"
-                        onclick="addToCart('${escapeQuotes(p.title)}', ${p.price}, '${p.image}')">
-                        ADD TO BAG
-                    </button>
-                </div>
-                <div class="product-info">
-                    <div class="product-title">${p.title}</div>
-                    ${p.urdu_name ? `<div class="urdu">${p.urdu_name}</div>` : ''}
-                    <div class="product-price">
-                        Rs. ${p.price}
-                        ${p.old_price ? `<span class="product-price-old">Rs. ${p.old_price}</span>` : ''}
+                for (const file of files) {
+                    if (file.name.endsWith('.json')) {
+                        const productRes = await fetch(file.download_url);
+                        const item = await productRes.json();
+                        if (item.in_stock !== false) allProducts.push(item);
+                    }
+                }
+                displayProducts(allProducts);
+            } catch (error) {
+                document.getElementById('product-grid').innerHTML = '<div class="col-12 text-center text-muted py-5">Unable to load products. Please refresh the page.</div>';
+            }
+        }
+
+        // DISPLAY PRODUCTS IN GRID
+        function displayProducts(products) {
+            const grid = document.getElementById('product-grid');
+            
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center text-muted py-5">No products found matching your filters.</div>';
+                return;
+            }
+
+            grid.innerHTML = products.map(item => {
+                const isOnSale = item.category === 'Special Offer';
+                const badge = isOnSale ? '<div class="badge-sale">SALE</div>' : '';
+                
+                return `
+                    <div class="col-6 col-md-3 product-card">
+                        <div class="img-container">
+                            ${badge}
+                            <img src="${item.image}" alt="${item.title}">
+                            <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item)})'>
+                                <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
+                            </button>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-title">${item.title}</div>
+                            ${item.urdu_name ? `<div class="urdu text-muted mb-1">${item.urdu_name}</div>` : ''}
+                            <div class="product-price">
+                                Rs. ${item.price.toLocaleString()}
+                            </div>
+                            <div class="small text-muted mt-1">${item.fabric || ''} | ${item.sub_category || ''}</div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>`;
-    });
-}
+                `;
+            }).join('');
+        }
 
-/* =========================
-   FILTERING
-========================= */
-function applyFilters() {
-    let filtered = [...allProducts];
+        // FILTER BY CATEGORY
+        function filterProducts(category) {
+            currentFilter.category = category;
+            currentFilter.subCategory = null;
+            currentFilter.fabric = null;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === category) btn.classList.add('active');
+            });
 
-    if (currentFilter.category !== 'all') {
-        filtered = filtered.filter(p => p.category === currentFilter.category);
-    }
-    if (currentFilter.subCategory) {
-        filtered = filtered.filter(p => p.sub_category === currentFilter.subCategory);
-    }
-    if (currentFilter.fabric) {
-        filtered = filtered.filter(p => p.fabric === currentFilter.fabric);
-    }
-    displayProducts(filtered);
-}
+            applyFilters();
+            document.getElementById('collections').scrollIntoView({ behavior: 'smooth' });
+        }
 
-function filterProducts(category) {
-    currentFilter.category = category;
-    currentFilter.subCategory = null;
-    currentFilter.fabric = null;
-    setActiveButtons(category);
-    applyFilters();
-}
+        // FILTER BY SUB-CATEGORY
+        function filterSubCategory(subCat) {
+            currentFilter.subCategory = subCat;
+            applyFilters();
+        }
 
-function filterSubCategory(sub) {
-    currentFilter.subCategory = sub;
-    applyFilters();
-}
+        // FILTER BY FABRIC
+        function filterFabric(fabric) {
+            currentFilter.fabric = fabric;
+            applyFilters();
+        }
 
-function filterFabric(fabric) {
-    currentFilter.fabric = fabric;
-    applyFilters();
-}
+        // APPLY ALL FILTERS
+        function applyFilters() {
+            let filtered = allProducts;
 
-function setActiveButtons(value) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === value);
-    });
-}
+            // Category filter
+            if (currentFilter.category !== 'all') {
+                filtered = filtered.filter(p => p.category === currentFilter.category);
+            }
 
-/* =========================
-   CART LOGIC
-========================= */
-function addToCart(title, price, img) {
-    cart.push({ title, price, img });
-    saveCart();
-    updateCartUI();
-    toggleCart(true);
-}
+            // Sub-category filter
+            if (currentFilter.subCategory) {
+                filtered = filtered.filter(p => p.sub_category === currentFilter.subCategory);
+            }
 
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    saveCart();
-    updateCartUI();
-}
+            // Fabric filter
+            if (currentFilter.fabric) {
+                filtered = filtered.filter(p => p.fabric === currentFilter.fabric);
+            }
 
-function saveCart() {
-    localStorage.setItem('jameel_cart', JSON.stringify(cart));
-}
+            displayProducts(filtered);
+        }
 
-function updateCartUI() {
-    const container = document.getElementById('cart-items-container');
-    const count = document.getElementById('cart-count');
-    const totalEl = document.getElementById('cart-total');
+        // ADD TO CART
+        function addToCart(product) {
+            cart.push({
+                title: product.title,
+                price: product.price,
+                image: product.image,
+                urdu_name: product.urdu_name || ''
+            });
+            
+            localStorage.setItem('jameel_cart', JSON.stringify(cart));
+            updateCartUI();
+            toggleCart(true);
+            
+            // Show feedback
+            const btn = event.target.closest('.add-to-bag');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-check me-2"></i>ADDED';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 1500);
+        }
 
-    container.innerHTML = '';
-    let total = 0;
+        // UPDATE CART UI
+        function updateCartUI() {
+            const count = document.getElementById('cart-count');
+            const container = document.getElementById('cart-items-container');
+            const total = document.getElementById('cart-total');
 
-    cart.forEach((item, i) => {
-        total += item.price;
-        container.innerHTML += `
-        <div class="cart-item">
-            <img src="${item.img}">
-            <div class="cart-item-info">
-                <div class="cart-item-title">${item.title}</div>
-                <div class="cart-item-price">Rs. ${item.price}</div>
-            </div>
-            <button class="remove-btn" onclick="removeFromCart(${i})">&times;</button>
-        </div>`;
-    });
+            count.textContent = cart.length;
 
-    count.innerText = cart.length;
-    totalEl.innerText = `Rs. ${total}`;
-}
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-5"><i class="fa fa-shopping-bag fa-3x mb-3 d-block"></i><p>Your bag is empty</p></div>';
+                total.textContent = 'Rs. 0';
+                return;
+            }
 
-/* =========================
-   CART SIDEBAR
-========================= */
-function toggleCart(forceOpen = false) {
-    document.getElementById('cart-sidebar').classList.toggle('active', forceOpen);
-    document.querySelector('.overlay').classList.toggle('active', forceOpen);
-}
+            let sum = 0;
+            container.innerHTML = cart.map((item, index) => {
+                sum += parseInt(item.price);
+                return `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.title}">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${item.title}</div>
+                            ${item.urdu_name ? `<div class="urdu small">${item.urdu_name}</div>` : ''}
+                            <div class="cart-item-price">Rs. ${item.price.toLocaleString()}</div>
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart(${index})" title="Remove">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
 
-/* =========================
-   WHATSAPP ORDER
-========================= */
-document.getElementById('orderForm').addEventListener('submit', e => {
-    e.preventDefault();
+            total.textContent = 'Rs. ' + sum.toLocaleString();
+        }
 
-    if (cart.length === 0) {
-        alert("Your cart is empty");
-        return;
-    }
+        // REMOVE FROM CART
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('jameel_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
 
-    const name = custName.value;
-    const phone = custPhone.value;
-    const city = custCity.value;
-    const address = custAddress.value;
+        // TOGGLE CART SIDEBAR
+        function toggleCart(forceOpen = false) {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.querySelector('.overlay');
+            
+            if (forceOpen) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
 
-    let message = `*NEW ORDER - JAMEEL*\n\n`;
-    message += `Name: ${name}\nPhone: ${phone}\nCity: ${city}\nAddress: ${address}\n\n*Items:*\n`;
+        // HANDLE ORDER SUBMISSION
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const city = document.getElementById('custCity').value;
+            const address = document.getElementById('custAddress').value;
 
-    cart.forEach(i => {
-        message += `- ${i.title} (Rs. ${i.price})\n`;
-    });
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
 
-    const total = cart.reduce((s, i) => s + i.price, 0);
-    message += `\n*Total: Rs. ${total}*`;
+            let message = `*NEW ORDER - JAMEEL*\n\n`;
+            message += `👤 *Customer Details*\n`;
+            message += `Name: ${name}\n`;
+            message += `Phone: ${phone}\n`;
+            message += `City: ${city}\n`;
+            message += `Address: ${address}\n\n`;
+            message += `🛍️ *Order Items*\n`;
+            
+            let total = 0;
+            cart.forEach((item, i) => {
+                total += parseInt(item.price);
+                message += `${i + 1}. ${item.title}\n`;
+                message += `   Price: Rs. ${item.price.toLocaleString()}\n\n`;
+            });
+            
+            message += `💰 *Total Amount: Rs. ${total.toLocaleString()}*\n\n`;
+            message += `Thank you for shopping with JAMEEL!`;
 
-    window.open(`https://wa.me/923000000000?text=${encodeURIComponent(message)}`);
-});
+            const whatsappNumber = '923000000000'; // Replace with your WhatsApp number
+            const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            
+            window.open(whatsappURL, '_blank');
+            
+            // Optional: Clear cart after order
+            // cart = [];
+            // localStorage.removeItem('jameel_cart');
+            // updateCartUI();
+            // toggleCart();
+        });
 
-/* =========================
-   HELPERS
-========================= */
-function escapeQuotes(str) {
-    return str.replace(/'/g, "\\'");
-}
+        // NEWSLETTER FORM
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for subscribing! You will receive exclusive offers soon.');
+            this.reset();
+        });
 
-/* =========================
-   INIT
-========================= */
-loadStore();
-updateCartUI();
-</script>
+        // INITIALIZE
+        loadCart();
+        loadStore();
+    </script>
+</body>
+</html>
