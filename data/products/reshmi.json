@@ -1,10 +1,12 @@
 {
-  "title": "Reshmi",
-  "category": "Unstitched",
-  "price": "5000",
+  "fabric": "Cambric",
+  "on_sale": true,
+  "price": 3500,
+  "old_price": 5000,
+  "title": "Women suit Reshmi",
   "image": "https://chasevalue.pk/cdn/shop/files/A26_1.png?v=1726897496",
   "urdu_name": "Reshmi",
-  "fabric": "Cambric",
   "in_stock": true,
-  "sub_category": "3-Piece"
+  "sub_category": "3-Piece",
+  "category": "Unstitched"
 }
