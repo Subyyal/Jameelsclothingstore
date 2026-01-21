@@ -10,35 +10,26 @@ collections:
     label: "Inventory (Zellbury Style)"
     folder: "data/products"
     create: true
-    extension: "json"
-    slug: "{{slug}}"
-
+    slug: "{{title}}"
+    extension: json
     fields:
       - { label: "Product Title", name: "title", widget: "string", hint: "e.g. 3 Piece Printed Lawn" }
       - { label: "Urdu Name (اردو نام)", name: "urdu_name", widget: "string", required: false }
-
-      # ✅ NEW: Audience pages (Women / Men / Kids -> Boys/Girls)
-      - label: "Audience"
-        name: "audience"
-        widget: "select"
-        options:
-          - "Women"
-          - "Men"
-          - "Boys"
-          - "Girls"
-
-      # Main Departments
+      
+      # Zellbury Main Departments
       - label: "Main Category"
         name: "category"
         widget: "select"
-        options:
+        options: 
           - "Unstitched"
           - "Ready to Wear"
           - "Menswear"
+          - "Boys"
+          - "Girls"
           - "Kids"
           - "Special Offer"
 
-      # Sub categories
+      # Sub-categories based on Zellbury's web structure
       - label: "Collection Type"
         name: "sub_category"
         widget: "select"
@@ -50,24 +41,15 @@ collections:
           - "Bottoms"
           - "Co-ord Sets"
 
-      # Pricing
+      # Pricing & Flexible Sale Logic
       - { label: "Current Price (PKR)", name: "price", widget: "number", value_type: "int" }
       - { label: "Original Price (Before Discount)", name: "old_price", widget: "number", value_type: "int", required: false, hint: "Leave empty for regular items" }
       - { label: "Mark as Sale Item", name: "on_sale", widget: "boolean", default: false, required: false }
-
-      # Attributes
+      
       - label: "Fabric"
         name: "fabric"
         widget: "select"
-        options:
-          - "Lawn"
-          - "Cotton"
-          - "Cambric"
-          - "Karandi"
-          - "Silk"
-          - "Linen"
-          - "Wash n Wear"
+        options: ["Lawn", "Cotton", "Cambric", "Karandi", "Silk", "Linen", "Wash n Wear"]
 
-      # Media + Stock
       - { label: "Product Image", name: "image", widget: "image" }
       - { label: "Stock Availability", name: "in_stock", widget: "boolean", default: true }
