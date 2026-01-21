@@ -7,14 +7,45 @@ public_folder: "/images/uploads"
 
 collections:
   - name: "products"
-    label: "Suits"
+    label: "Inventory (Zellbury Style)"
     folder: "data/products"
     create: true
     slug: "{{title}}"
     extension: json
     fields:
-      - { label: "Suit Name", name: "title", widget: "string" }
-      - { label: "Urdu Name", name: "urdu_name", widget: "string" }
-      - { label: "Category", name: "category", widget: "select", options: ["Winter", "Summer", "Embroidered", "Mardana", "Zanana"] }
-      - { label: "Price Range", name: "price", widget: "string" }
-      - { label: "Suit Image", name: "image", widget: "image" }
+      - { label: "Product Title", name: "title", widget: "string", hint: "e.g. 3 Piece Printed Lawn" }
+      - { label: "Urdu Name (اردو نام)", name: "urdu_name", widget: "string" }
+      
+      # Zellbury Main Departments
+      - label: "Main Category"
+        name: "category"
+        widget: "select"
+        options: 
+          - "Unstitched"
+          - "Ready to Wear"
+          - "Menswear"
+          - "Kids"
+          - "Special Offer"
+
+      # Sub-categories based on Zellbury's web structure
+      - label: "Collection Type"
+        name: "sub_category"
+        widget: "select"
+        options:
+          - "1-Piece"
+          - "2-Piece"
+          - "3-Piece"
+          - "Kurta"
+          - "Bottoms"
+          - "Co-ord Sets"
+
+      - { label: "Price (PKR)", name: "price", widget: "number", value_type: "int" }
+      
+      - label: "Fabric"
+        name: "fabric"
+        widget: "select"
+        options: ["Lawn", "Cotton", "Cambric", "Karandi", "Silk", "Linen", "Wash n Wear"]
+
+      - { label: "Product Image", name: "image", widget: "image" }
+      
+      - { label: "Stock Availability", name: "in_stock", widget: "boolean", default: true }
