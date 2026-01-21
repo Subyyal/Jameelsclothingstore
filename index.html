@@ -180,31 +180,15 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-               <ul class="navbar-nav mx-auto text-uppercase">
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('all'); scrollToProducts()">New Arrivals</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('Unstitched'); scrollToProducts()">Unstitched</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('Ready to Wear'); scrollToProducts()">Ready to Wear</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('Menswear'); scrollToProducts()">Menswear</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('Boys'); scrollToProducts()">Boys</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('Girls'); scrollToProducts()">Girls</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#collections" onclick="filterProducts('Kids'); scrollToProducts()">Kids</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-danger" href="#collections" onclick="filterProducts('Special Offer'); scrollToProducts()">Sale</a>
-    </li>
+          <ul class="navbar-nav mx-auto text-uppercase">
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('all')">New Arrivals</a></li>
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('Unstitched')">Unstitched</a></li>
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('Ready to Wear')">Ready to Wear</a></li>
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('Menswear')">Menswear</a></li>
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('Boys')">Boys</a></li>
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('Girls')">Girls</a></li>
+    <li class="nav-item"><a class="nav-link" href="#collections" onclick="filterProducts('Kids')">Kids</a></li>
+    <li class="nav-item"><a class="nav-link text-danger" href="#collections" onclick="filterProducts('Special Offer')">Sale</a></li>
 </ul>
             </div>
 
@@ -559,23 +543,25 @@
         }
 
         // APPLY ALL FILTERS
-    function applyFilters() {
+   // REPLACE your existing applyFilters function with this:
+function applyFilters() {
     let filtered = allProducts;
 
-    // Enhanced Category Filter
+    // Flexible Category Logic
     if (currentFilter.category === 'Special Offer') {
-        // Show everything in 'Special Offer' category AND anything manually marked 'on_sale'
+        // Captures items in the 'Special Offer' category OR those with the 'on_sale' toggle
         filtered = filtered.filter(p => p.category === 'Special Offer' || p.on_sale === true);
     } else if (currentFilter.category !== 'all') {
+        // This will now correctly match 'Boys', 'Girls', 'Menswear', etc.
         filtered = filtered.filter(p => p.category === currentFilter.category);
     }
 
-    // Sub-category filter (1-Piece, 2-Piece, etc)
+    // Sub-category filter (e.g., 2-Piece, Kurta)
     if (currentFilter.subCategory) {
         filtered = filtered.filter(p => p.sub_category === currentFilter.subCategory);
     }
 
-    // Fabric filter (Lawn, Silk, etc)
+    // Fabric filter
     if (currentFilter.fabric) {
         filtered = filtered.filter(p => p.fabric === currentFilter.fabric);
     }
