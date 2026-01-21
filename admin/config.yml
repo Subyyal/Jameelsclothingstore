@@ -1,0 +1,21 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "products"
+    label: "Suits"
+    folder: "data/products"
+    create: true
+    slug: "{{title}}"
+    extension: json
+    fields:
+      - { label: "Suit Name", name: "title", widget: "string" }
+      - { label: "Urdu Name (اردو نام)", name: "urdu_name", widget: "string" }
+      - { label: "Category", name: "category", widget: "select", options: ["Winter", "Summer", "Embroidered", "Mardana", "Zanana"] }
+      - { label: "Price Range", name: "price", widget: "string", hint: "e.g. 3500-5000" }
+      - { label: "Suit Image", name: "image", widget: "image" }
+      - { label: "Available Colors", name: "colors", widget: "list", default: ["Light", "Dark"] }
