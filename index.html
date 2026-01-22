@@ -291,50 +291,39 @@
     </section>
 
     <!-- FILTERS & PRODUCTS -->
-    <section id="collections" class="py-5">
-        <div class="container">
-            <h2 class="section-title">Our Collection</h2>
-            
-            <div class="filter-section">
-                <button class="btn mobile-filter-toggle d-md-none" onclick="document.querySelector('.filter-options').classList.toggle('show')">
-                    <i class="fa fa-filter"></i> FILTERS
-                </button>
-                <div class="filter-options text-center">
-                    <div class="mb-3">
-                        <small class="text-muted d-block mb-2">CATEGORY</small>
-                        <button class="filter-btn active" data-filter="all" onclick="filterProducts('all')">ALL</button>
-                        <button class="filter-btn" data-filter="Unstitched" onclick="filterProducts('Unstitched')">UNSTITCHED</button>
-                        <button class="filter-btn" data-filter="Ready to Wear" onclick="filterProducts('Ready to Wear')">PRET</button>
-                        <button class="filter-btn" data-filter="Menswear" onclick="filterProducts('Menswear')">MENSWEAR</button>
-                        <button class="filter-btn" data-filter="Kids" onclick="filterProducts('Kids')">KIDS</button>
-                    </div>
-                    <div class="mb-3">
-                        <small class="text-muted d-block mb-2">TYPE</small>
-                        <button class="filter-btn" onclick="filterSubCategory('1-Piece')">1-PIECE</button>
-                        <button class="filter-btn" onclick="filterSubCategory('2-Piece')">2-PIECE</button>
-                        <button class="filter-btn" onclick="filterSubCategory('3-Piece')">3-PIECE</button>
-                        <button class="filter-btn" onclick="filterSubCategory('Kurta')">KURTA</button>
-                        <button class="filter-btn" onclick="filterSubCategory('Bottoms')">BOTTOMS</button>
-                    </div>
-                    <div>
-                        <small class="text-muted d-block mb-2">FABRIC</small>
-                        <button class="filter-btn" onclick="filterFabric('Lawn')">LAWN</button>
-                        <button class="filter-btn" onclick="filterFabric('Cotton')">COTTON</button>
-                        <button class="filter-btn" onclick="filterFabric('Cambric')">CAMBRIC</button>
-                        <button class="filter-btn" onclick="filterFabric('Silk')">SILK</button>
-                        <button class="filter-btn" onclick="filterFabric('Linen')">LINEN</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="product-grid" class="row mt-4">
-                <div class="loading">
-                    <i class="fas fa-spinner"></i>
-                    <p class="mt-3 text-muted">Loading products...</p>
+  <section id="collections" class="py-5">
+    <div class="container">
+        <h2 class="section-title">Our Collection / ہمارا مجموعہ</h2>
+        
+        <div class="filter-section">
+            <button class="btn mobile-filter-toggle d-md-none" onclick="document.querySelector('.filter-options').classList.toggle('show')">
+                <i class="fa fa-filter"></i> FILTERS
+            </button>
+            <div class="filter-options text-center">
+                <div class="mb-3">
+                    <small class="text-muted d-block mb-2">CATEGORY / زمرہ</small>
+                    <button class="filter-btn active" data-filter="all" onclick="filterProducts('all')">ALL / تمام</button>
+                    <button class="filter-btn" data-filter="ملتانی بیڈ شیٹ سنگل بیڈ" onclick="filterProducts('ملتانی بیڈ شیٹ سنگل بیڈ')">MULTANI SINGLE / ملتانی سنگل</button>
+                    <button class="filter-btn" data-filter="ملتانی بیڈ شیٹ ڈبل بیڈ" onclick="filterProducts('ملتانی بیڈ شیٹ ڈبل بیڈ')">MULTANI DOUBLE / ملتانی ڈبل</button>
+                    <button class="filter-btn" data-filter="رشید کاٹن" onclick="filterProducts('رشید کاٹن')">RASHEED COTTON / رشید کاٹن</button>
+                    <button class="filter-btn" data-filter="رشید لان کاٹن" onclick="filterProducts('رشید لان کاٹن')">RASHEED LAWN / رشید لان</button>
+                    <button class="filter-btn" data-filter="LCM سفید لٹھا" onclick="filterProducts('LCM سفید لٹھا')">WHITE LATHA / سفید لٹھا</button>
+                    <button class="filter-btn" data-filter="ٹاول" onclick="filterProducts('ٹاول')">TOWELS / ٹاول</button>
+                    <button class="filter-btn text-danger" data-filter="Special Offer" onclick="filterProducts('Special Offer')">SALE / سیل</button>
                 </div>
             </div>
         </div>
-    </section>
+
+        <div id="product-grid" class="row mt-4">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p class="mt-3 text-muted">Loading products...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+         
 
     <!-- NEWSLETTER -->
     <section class="newsletter">
