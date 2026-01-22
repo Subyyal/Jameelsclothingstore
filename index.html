@@ -202,41 +202,43 @@
 
     <!-- HERO CAROUSEL -->
     <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-content">
+                    <p class="text-uppercase">Traditional Comfort</p>
+                    <h1>Premium Multani Bedsheets</h1>
+                    <button class="btn btn-hero" onclick="filterProducts('ملتانی بیڈ شیٹ سنگل بیڈ')">SHOP BEDSHEETS</button>
+                </div>
+            </div>
         </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=1920');">
-                    <div class="hero-content">
-                        <p class="text-uppercase">Summer Collection 2026</p>
-                        <h1>Elegance Redefined</h1>
-                        <button class="btn btn-hero" onclick="document.getElementById('collections').scrollIntoView({behavior: 'smooth'})">SHOP NOW</button>
-                    </div>
+        
+        <div class="carousel-item">
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-content">
+                    <p class="text-uppercase">Rasheed Cotton & Lawn</p>
+                    <h1>Fine Shalwar Qameez Fabrics</h1>
+                    <button class="btn btn-hero" onclick="filterProducts('رشید کاٹن')">EXPLORE FABRICS</button>
                 </div>
             </div>
-            <div class="carousel-item">
-                <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=1920');">
-                    <div class="hero-content">
-                        <p class="text-uppercase">Unstitched Lawn</p>
-                        <h1>Premium Fabrics</h1>
-                        <button class="btn btn-hero" onclick="filterProducts('Unstitched')">EXPLORE COLLECTION</button>
-                    </div>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1920');">
-                    <div class="hero-content">
-                        <p class="text-uppercase">Exclusive Sale</p>
-                        <h1>Up to 50% Off</h1>
-                        <button class="btn btn-hero" onclick="filterProducts('Special Offer')">SHOP SALE</button>
-                    </div>
+        </div>
+        
+        <div class="carousel-item">
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1606103940244-845df874837f?auto=format&fit=crop&q=80&w=1920');">
+                <div class="hero-content">
+                    <p class="text-uppercase">Season Ending Sale</p>
+                    <h1>Up to 50% Off / سیل</h1>
+                    <button class="btn btn-hero" onclick="filterProducts('Special Offer')">SHOP SALE</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- CATEGORY CARDS -->
     <section class="category-section">
