@@ -32,5 +32,9 @@ collections:
       - { label: "Original Price (Before Discount)", name: "old_price", widget: "number", value_type: "int", required: false }
       - { label: "Mark as Sale Item", name: "on_sale", widget: "boolean", default: false, required: false }
       
-      - { label: "Product Image", name: "image", widget: "image" }
+      - label: "Product Images"
+        name: "images" # Changed from 'image' to 'images'
+        widget: "list"
+        summary: '{{fields.url}}'
+        field: { label: "Image", name: "url", widget: "image" }
       - { label: "Stock Availability", name: "in_stock", widget: "boolean", default: true }
