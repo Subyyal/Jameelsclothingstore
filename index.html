@@ -461,55 +461,26 @@
         }
 
         // DISPLAY PRODUCTS IN GRID
- function displayProducts(products) {
+   function displayProducts(products) {
     const grid = document.getElementById('product-grid');
-    
-    // Debug: Let's see what we're getting
-    console.log('Total products:', products.length);
-    if (products.length > 0) {
-        console.log('First product:', products[0]);
-        console.log('First product images:', products[0].images);
-    }
-    
     grid.innerHTML = products.map(item => {
         const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
         
-        // Handle Multiple Images with better error handling
-        let mainImage = 'https://via.placeholder.com/400x500?text=No+Image';
-        let hoverImage = 'https://via.placeholder.com/400x500?text=No+Image';
-        
-        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-            // Check if first image has url property
-            if (item.images[0].url) {
-                mainImage = item.images[0].url;
-                console.log('Main image found:', mainImage);
-            } else if (typeof item.images[0] === 'string') {
-                // Maybe images are stored as strings directly?
-                mainImage = item.images[0];
-                console.log('Main image (string):', mainImage);
-            }
-            
-            // Get hover image if exists
-            if (item.images.length > 1) {
-                if (item.images[1].url) {
-                    hoverImage = item.images[1].url;
-                } else if (typeof item.images[1] === 'string') {
-                    hoverImage = item.images[1];
-                }
-            } else {
-                hoverImage = mainImage; // Use same image for hover
-            }
-        }
+        // Handle Multiple Images: Use the first image in the list, or a fallback
+        const mainImage = (item.images && item.images.length > 0) 
+            ? item.images[0].url 
+            : 'path/to/placeholder.jpg';
 
         return `
             <div class="col-6 col-md-3 product-card">
                 <div class="img-container">
                     ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
-                    <img src="${mainImage}" 
-                         onmouseover="this.src='${hoverImage}'" 
-                         onmouseout="this.src='${mainImage}'"
-                         onerror="console.error('Image failed to load:', this.src); this.src='https://via.placeholder.com/400x500?text=Error';"
-                         alt="${item.title}">
+                    // Replace the <img> tag in the return string with this:
+    <img src="${mainImage}" 
+     onmouseover="if(this.dataset.alt) this.src=this.dataset.alt" 
+     onmouseout="this.src='${mainImage}'"
+     data-alt="${item.images[1] ? item.images[1].url : ''}" 
+     alt="${item.title}">
                     <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                         <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
                     </button>
@@ -558,23 +529,11 @@ function displayProducts(products) {
     const grid = document.getElementById('product-grid');
     grid.innerHTML = products.map(item => {
         const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
-        
-        const mainImage = (item.images && item.images.length > 0) 
-            ? item.images[0].url 
-            : 'https://via.placeholder.com/400x500?text=No+Image';
-        
-        const hoverImage = (item.images && item.images.length > 1) 
-            ? item.images[1].url 
-            : mainImage;
-        
         return `
             <div class="col-6 col-md-3 product-card">
                 <div class="img-container">
                     ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
-                    <img src="${mainImage}" 
-                         onmouseover="this.src='${hoverImage}'" 
-                         onmouseout="this.src='${mainImage}'"
-                         alt="${item.title}">
+                    <img src="${item.image}" alt="${item.title}">
                     <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                         <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
                     </button>
@@ -590,7 +549,8 @@ function displayProducts(products) {
             </div>
         `;
     }).join('');
-}       // ADD TO CART
+}
+        // ADD TO CART
         function addToCart(product, event) {
             cart.push({
                 title: product.title,
