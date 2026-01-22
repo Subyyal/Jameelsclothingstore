@@ -527,43 +527,31 @@ function applyFilters() {
     displayProducts(filtered);
 }
 
-function displayProducts(products) {
+ function displayProducts(products) {
     const grid = document.getElementById('product-grid');
     grid.innerHTML = products.map(item => {
         const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
-        
-        const mainImage = (item.images && item.images.length > 0) 
-            ? item.images[0].url 
-            : 'https://via.placeholder.com/400x500?text=No+Image';
-        
-        const hoverImage = (item.images && item.images.length > 1) 
-            ? item.images[1].url 
-            : mainImage;
-        
-        return `
+        return 
             <div class="col-6 col-md-3 product-card">
                 <div class="img-container">
                     ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
-                    <img src="${mainImage}" 
-                         onmouseover="this.src='${hoverImage}'" 
-                         onmouseout="this.src='${mainImage}'"
-                         alt="${item.title}">
+                    <img src="${item.image}" alt="${item.title}">
                     <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                         <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
                     </button>
                 </div>
                 <div class="product-info">
                     <div class="product-title">${item.title}</div>
-                    ${item.urdu_name ? `<div class="urdu text-muted mb-1" style="font-size: 0.8rem;">${item.urdu_name}</div>` : ''}
+                    ${item.urdu_name ? <div class="urdu text-muted mb-1" style="font-size: 0.8rem;">${item.urdu_name}</div> : ''}
                     <div class="product-price">
                         Rs. ${item.price.toLocaleString()}
-                        ${(isOnSale && item.old_price) ? `<span class="product-price-old">Rs. ${item.old_price.toLocaleString()}</span>` : ''}
+                        ${(isOnSale && item.old_price) ? <span class="product-price-old">Rs. ${item.old_price.toLocaleString()}</span> : ''}
                     </div>
                 </div>
             </div>
-        `;
+        ;
     }).join('');
-}
+} 
         // ADD TO CART
         function addToCart(product, event) {
             cart.push({
