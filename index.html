@@ -461,37 +461,48 @@
         }
 
         // DISPLAY PRODUCTS IN GRID
-   function displayProducts(products) {
+  function displayProducts(products) {
     const grid = document.getElementById('product-grid');
     grid.innerHTML = products.map(item => {
         const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
         
-        // Handle Multiple Images: Use the first image in the list, or a fallback
-      // Handle both "image" (string) and "images" (array) formats
-let mainImage = 'https://via.placeholder.com/400x500?text=No+Image';
-let hoverImage = 'https://via.placeholder.com/400x500?text=No+Image';
-
-if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-    // New format: images array
-    mainImage = (typeof item.images[0] === 'object') ? item.images[0].url : item.images[0];
-    hoverImage = (item.images.length > 1) 
-        ? ((typeof item.images[1] === 'object') ? item.images[1].url : item.images[1])
-        : mainImage;
-} else if (item.image) {
-    // Old format: single image string
-    mainImage = item.image;
-    hoverImage = item.image;
-}
+        // Get all images
+        let allImages = [];
+        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+            // New format: images array
+            allImages = item.images.map(img => 
+                (typeof img === 'object') ? img.url : img
+            );
+        } else if (item.image) {
+            // Old format: single image
+            allImages = [item.image];
+        } else {
+            allImages = ['https://via.placeholder.com/400x500?text=No+Image'];
+        }
+        
+        const mainImage = allImages[0];
+        
+        // Create thumbnail gallery HTML if multiple images
+        const thumbnailGallery = allImages.length > 1 ? `
+            <div style="display: flex; gap: 5px; margin-top: 10px; justify-content: center;">
+                ${allImages.map((img, idx) => `
+                    <img src="${img}" 
+                         onclick="this.closest('.product-card').querySelector('.main-product-img').src='${img}'"
+                         style="width: 40px; height: 40px; object-fit: cover; cursor: pointer; border: 2px solid ${idx === 0 ? 'var(--gold)' : '#ddd'}; border-radius: 4px;"
+                         onmouseover="this.style.borderColor='var(--gold)'"
+                         onmouseout="this.style.borderColor='${idx === 0 ? 'var(--gold)' : '#ddd'}'"
+                         alt="Thumbnail ${idx + 1}">
+                `).join('')}
+            </div>
+        ` : '';
 
         return `
             <div class="col-6 col-md-3 product-card">
                 <div class="img-container">
                     ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
-                    // Replace the <img> tag in the return string with this:
-    <img src="${mainImage}" 
-     onmouseover="this.src='${hoverImage}'" 
-     onmouseout="this.src='${mainImage}'"
-     alt="${item.title}">
+                    <img src="${mainImage}" 
+                         class="main-product-img"
+                         alt="${item.title}">
                     <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                         <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
                     </button>
@@ -499,7 +510,8 @@ if (item.images && Array.isArray(item.images) && item.images.length > 0) {
                 <div class="product-info">
                     <div class="product-title">${item.title}</div>
                     ${item.urdu_name ? `<div class="urdu text-muted mb-1" style="font-size: 0.8rem;">${item.urdu_name}</div>` : ''}
-                    <div class="product-price">
+                    ${thumbnailGallery}
+                    <div class="product-price" style="margin-top: ${allImages.length > 1 ? '10px' : '0'};">
                         Rs. ${item.price.toLocaleString()}
                         ${(isOnSale && item.old_price) ? `<span class="product-price-old">Rs. ${item.old_price.toLocaleString()}</span>` : ''}
                     </div>
