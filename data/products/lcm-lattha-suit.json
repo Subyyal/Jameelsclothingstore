@@ -5,5 +5,9 @@
   "category": "LCM سفید لٹھا",
   "urdu_name": "LCM سفید لٹھا ",
   "image": "/images/uploads/lcm-lattha-2.jpg",
-  "price": 2000
+  "price": 2000,
+  "images": [
+    "/images/uploads/lcm-lattha-2.jpg",
+    "/images/uploads/lcm-lattha.jpg"
+  ]
 }
