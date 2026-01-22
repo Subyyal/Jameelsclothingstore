@@ -475,7 +475,12 @@
             <div class="col-6 col-md-3 product-card">
                 <div class="img-container">
                     ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
-                    <img src="${mainImage}" alt="${item.title}">
+                    // Replace the <img> tag in the return string with this:
+    <img src="${mainImage}" 
+     onmouseover="if(this.dataset.alt) this.src=this.dataset.alt" 
+     onmouseout="this.src='${mainImage}'"
+     data-alt="${item.images[1] ? item.images[1].url : ''}" 
+     alt="${item.title}">
                     <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                         <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
                     </button>
