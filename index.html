@@ -467,9 +467,21 @@
         const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
         
         // Handle Multiple Images: Use the first image in the list, or a fallback
-        const mainImage = (item.images && item.images.length > 0) 
-            ? item.images[0].url 
-            : 'path/to/placeholder.jpg';
+      // Handle both "image" (string) and "images" (array) formats
+let mainImage = 'https://via.placeholder.com/400x500?text=No+Image';
+let hoverImage = 'https://via.placeholder.com/400x500?text=No+Image';
+
+if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+    // New format: images array
+    mainImage = (typeof item.images[0] === 'object') ? item.images[0].url : item.images[0];
+    hoverImage = (item.images.length > 1) 
+        ? ((typeof item.images[1] === 'object') ? item.images[1].url : item.images[1])
+        : mainImage;
+} else if (item.image) {
+    // Old format: single image string
+    mainImage = item.image;
+    hoverImage = item.image;
+}
 
         return `
             <div class="col-6 col-md-3 product-card">
@@ -477,9 +489,8 @@
                     ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
                     // Replace the <img> tag in the return string with this:
     <img src="${mainImage}" 
-     onmouseover="if(this.dataset.alt) this.src=this.dataset.alt" 
+     onmouseover="this.src='${hoverImage}'" 
      onmouseout="this.src='${mainImage}'"
-     data-alt="${item.images[1] ? item.images[1].url : ''}" 
      alt="${item.title}">
                     <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
                         <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
