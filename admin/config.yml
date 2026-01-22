@@ -13,27 +13,24 @@ collections:
     slug: "{{title}}"
     extension: json
     fields:
-      - { label: "Product Title", name: "title", widget: "string" }
+      - { label: "Product Title (English)", name: "title", widget: "string" }
       - { label: "Urdu Name (اردو نام)", name: "urdu_name", widget: "string", required: false }
       
       - label: "Main Category"
         name: "category"
         widget: "select"
-        options: ["Unstitched", "Ready to Wear", "Menswear", "Boys", "Girls", "Kids", "Special Offer"]
-
-      - label: "Collection Type"
-        name: "sub_category"
-        widget: "select"
-        options: ["1-Piece", "2-Piece", "3-Piece", "Kurta", "Bottoms", "Co-ord Sets"]
+        options: 
+          - "ملتانی بیڈ شیٹ سنگل بیڈ"
+          - "ملتانی بیڈ شیٹ ڈبل بیڈ"
+          - "رشید کاٹن"
+          - "رشید لان کاٹن"
+          - "LCM سفید لٹھا"
+          - "ٹاول"
+          - "Special Offer"
 
       - { label: "Current Price (PKR)", name: "price", widget: "number", value_type: "int" }
       - { label: "Original Price (Before Discount)", name: "old_price", widget: "number", value_type: "int", required: false }
       - { label: "Mark as Sale Item", name: "on_sale", widget: "boolean", default: false, required: false }
       
-      - label: "Fabric"
-        name: "fabric"
-        widget: "select"
-        options: ["Lawn", "Cotton", "Cambric", "Karandi", "Silk", "Linen", "Wash n Wear"]
-
       - { label: "Product Image", name: "image", widget: "image" }
       - { label: "Stock Availability", name: "in_stock", widget: "boolean", default: true }
