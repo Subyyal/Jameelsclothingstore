@@ -515,60 +515,58 @@
 }
 
         // FILTER BY CATEGORY
-        function filterProducts(category) {
-            currentFilter.category = category;
-            currentFilter.subCategory = null;
-            currentFilter.fabric = null;
-            
-            // Update active button
-            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.filter === category) btn.classList.add('active');
-            });
+       function filterProducts(category) {
+    currentFilter.category = category;
+    
+    // Jump to section
+    const section = document.getElementById('collections');
+    if (section) {
+        window.scrollTo({
+            top: section.offsetTop - 80,
+            behavior: 'smooth'
+        });
+    }
 
-            applyFilters();
-            document.getElementById('collections').scrollIntoView({ behavior: 'smooth' });
-        }
+    applyFilters();
+}
 
-        // FILTER BY SUB-CATEGORY
-        function filterSubCategory(subCat) {
-            currentFilter.subCategory = subCat;
-            applyFilters();
-        }
-
-        // FILTER BY FABRIC
-        function filterFabric(fabric) {
-            currentFilter.fabric = fabric;
-            applyFilters();
-        }
-
-        // APPLY ALL FILTERS
-   // REPLACE your existing applyFilters function with this:
 function applyFilters() {
     let filtered = allProducts;
 
-    // Flexible Category Logic
     if (currentFilter.category === 'Special Offer') {
-        // Captures items in the 'Special Offer' category OR those with the 'on_sale' toggle
         filtered = filtered.filter(p => p.category === 'Special Offer' || p.on_sale === true);
     } else if (currentFilter.category !== 'all') {
-        // This will now correctly match 'Boys', 'Girls', 'Menswear', etc.
         filtered = filtered.filter(p => p.category === currentFilter.category);
-    }
-
-    // Sub-category filter (e.g., 2-Piece, Kurta)
-    if (currentFilter.subCategory) {
-        filtered = filtered.filter(p => p.sub_category === currentFilter.subCategory);
-    }
-
-    // Fabric filter
-    if (currentFilter.fabric) {
-        filtered = filtered.filter(p => p.fabric === currentFilter.fabric);
     }
 
     displayProducts(filtered);
 }
 
+function displayProducts(products) {
+    const grid = document.getElementById('product-grid');
+    grid.innerHTML = products.map(item => {
+        const isOnSale = item.category === 'Special Offer' || item.on_sale === true;
+        return `
+            <div class="col-6 col-md-3 product-card">
+                <div class="img-container">
+                    ${isOnSale ? '<div class="badge-sale">SALE</div>' : ''}
+                    <img src="${item.image}" alt="${item.title}">
+                    <button class="add-to-bag" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")}, event)'>
+                        <i class="fa fa-shopping-bag me-2"></i>ADD TO BAG
+                    </button>
+                </div>
+                <div class="product-info">
+                    <div class="product-title">${item.title}</div>
+                    ${item.urdu_name ? `<div class="urdu text-muted mb-1" style="font-size: 0.8rem;">${item.urdu_name}</div>` : ''}
+                    <div class="product-price">
+                        Rs. ${item.price.toLocaleString()}
+                        ${(isOnSale && item.old_price) ? `<span class="product-price-old">Rs. ${item.old_price.toLocaleString()}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
         // ADD TO CART
         function addToCart(product, event) {
             cart.push({
